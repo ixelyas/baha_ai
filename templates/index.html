@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="hero-section text-white text-center">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold">🏋️ AI Fitness Coach</h1>
+        <p class="lead mt-3">Your personal AI trainer for physical and mental health</p>
+        <a href="{{ url_for('ai_lab') }}" class="btn btn-light btn-lg mt-4">Start Training</a>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="section-title">🌟 What Can You Do?</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card h-100 text-center p-4">
+                <div class="icon mb-3">🤖</div>
+                <h4 class="fw-bold">AI Analysis</h4>
+                <p>Upload your data and get predictions from multiple AI algorithms instantly.</p>
+                <a href="{{ url_for('ai_lab') }}" class="btn btn-outline-primary mt-3">AI Lab</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100 text-center p-4">
+                <div class="icon mb-3">📔</div>
+                <h4 class="fw-bold">Mood Journal</h4>
+                <p>Write about your day. Our AI will analyze your emotions and provide feedback.</p>
+                <a href="{{ url_for('journal') }}" class="btn btn-outline-primary mt-3">Open Journal</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100 text-center p-4">
+                <div class="icon mb-3">📊</div>
+                <h4 class="fw-bold">Track Progress</h4>
+                <p>Monitor your physical and emotional trends and track your improvements over time.</p>
+                <a href="#" class="btn btn-outline-primary mt-3">View Progress</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="steps-section bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">🔍 How It Works</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="step-box p-4">
+                    <div class="step-number">1</div>
+                    <h5 class="fw-bold">Take a Survey</h5>
+                    <p>Answer questions about sleep, stress, energy, and more to assess your well-being.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-box p-4">
+                    <div class="step-number">2</div>
+                    <h5 class="fw-bold">Write in Journal</h5>
+                    <p>Reflect on your day. Let the AI read between the lines to understand your emotions.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-box p-4">
+                    <div class="step-number">3</div>
+                    <h5 class="fw-bold">See Results</h5>
+                    <p>Get custom recommendations and insights to boost your fitness and mental clarity.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.hero-section {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    padding: 80px 0;
+    border-radius: 0 0 40px 40px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    color: #333;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background-color: #2575fc;
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+.feature-card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+}
+
+.feature-card .icon {
+    font-size: 40px;
+}
+
+.steps-section {
+    background-color: #f4f6f8;
+}
+
+.step-box {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+}
+
+.step-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background-color: #2575fc;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

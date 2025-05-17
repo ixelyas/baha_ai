@@ -1,0 +1,156 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="mb-4">Your Training Recommendations</h1>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+
+                        {% if sentiment_score is defined %}
+                            <h2 class="h4 mb-3">Journal Mood Analysis</h2>
+                            <div class="progress mb-3" style="height: 20px;">
+                                {% set percent = ((sentiment_score + 1) / 2 * 100) | int %}
+                                {% if sentiment_score < -0.3 %}
+                                    <div class="progress-bar bg-danger" role="progressbar" 
+                                         style="width: {{ percent }}%" 
+                                         aria-valuenow="{{ percent }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                {% elif sentiment_score > 0.3 %}
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ percent }}%" 
+                                         aria-valuenow="{{ percent }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                {% else %}
+                                    <div class="progress-bar bg-info" role="progressbar" 
+                                         style="width: {{ percent }}%" 
+                                         aria-valuenow="{{ percent }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                {% endif %}
+                            </div>
+                            <p class="lead">Your mood appears to be <strong>{{ mood_text }}</strong></p>
+                            <p>Sentiment score: {{ "%.2f"|format(sentiment_score) }} (scale from -1 to 1)</p>
+                        {% endif %}
+
+                        {% if training_level is defined %}
+                            <h2 class="h4 mb-3">Today's Training Readiness</h2>
+                            <div class="d-flex justify-content-center mb-3">
+                                <div class="training-meter">
+                                    {% set training_labels = ['No Training', 'Rest Day', 'Light Training', 'Moderate Training', 'Go Hard'] %}
+                                    {% set training_colors = ['secondary', 'success', 'info', 'warning', 'danger'] %}
+
+                                    <div class="d-flex">
+                                        {% for i in range(5) %}
+                                            {% set is_active = i + 1 == training_level %}
+                                            {% set opacity = '1' if i + 1 <= training_level else '0.3' %}
+                                            {% set bg_class = 'bg-' + training_colors[i] if is_active else '' %}
+                                            <div class="training-level-box {{ 'active' if is_active else '' }} {{ bg_class }}"
+                                                 data-bs-toggle="tooltip" 
+                                                 title="{{ training_labels[i] }}" 
+                                                 style="opacity: {{ opacity }};">
+                                                {{ i + 1 }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="mt-2 lead">Recommended Level: <strong>{{ training_labels[training_level - 1] }}</strong></p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="recommendations mt-4">
+                        <h3 class="h5 mb-3">Your Personalized Recommendations</h3>
+                        <ul class="list-group list-group-flush">
+                            {% for recommendation in recommendations %}
+                                <li class="list-group-item py-3">{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if results %}
+                    <div class="ai-results mt-5">
+                        <h2 class="h5 mb-3">AI Predictions by Models:</h2>
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Algorithm</th>
+                                    <th>Prediction</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for algo, result in results.items() %}
+                                <tr>
+                                    <td>{{ algo }}</td>
+                                    <td>
+                                        {% if "Rest" in result or "No Training" in result %}
+                                            <span class="badge bg-success">{{ result }}</span>
+                                        {% elif "Light" in result %}
+                                            <span class="badge bg-info text-dark">{{ result }}</span>
+                                        {% elif "Moderate" in result %}
+                                            <span class="badge bg-warning text-dark">{{ result }}</span>
+                                        {% elif "Go Hard" in result %}
+                                            <span class="badge bg-danger">{{ result }}</span>
+                                        {% else %}
+                                            {{ result }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>
+                <a href="{{ url_for('progress') }}" class="btn btn-primary">View Progress</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .training-meter {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .training-level-box {
+        width: 60px;
+        height: 60px;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 5px;
+        border-radius: 8px;
+        cursor: default;
+    }
+
+    .training-level-box.active {
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %}

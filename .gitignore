@@ -1,0 +1,36 @@
+# Виртуальное окружение
+venv/
+ENV/
+env/
+.venv/
+
+# Файлы и каталоги Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Модели машинного обучения
+*.pkl
+*.pt
+
+# Файлы баз данных
+*.db
+
+# Файлы логов
+*.log
+
+# Файлы конфигурации среды
+.env
+
+# Кэш браузера или IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Jupyter Notebook checkpoint
+.ipynb_checkpoints/
+
+# Бинарные файлы
+*.exe
+*.dll
+*.so

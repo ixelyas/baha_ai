@@ -1,0 +1,178 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Your Fitness Progress</h1>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div id="progressChart-container" style="height: 400px;">
+                {% if chart_data %}
+                <canvas id="progressChart"></canvas>
+                {% else %}
+                <div class="text-center p-5">
+                    <p class="text-muted">No data available yet. Complete your fitness surveys and journaling to see your progress!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Training Readiness Scale</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>1 - No Training</span>
+                            <span class="badge bg-secondary rounded-pill">🛌</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>2 - Rest Day</span>
+                            <span class="badge bg-success rounded-pill">🧘‍♂️</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>3 - Light Training</span>
+                            <span class="badge bg-info rounded-pill">🚶‍♂️</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>4 - Moderate Training</span>
+                            <span class="badge bg-warning text-dark rounded-pill">🏋️‍♀️</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>5 - Go Hard</span>
+                            <span class="badge bg-danger rounded-pill">🔥</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Journal Mood Scale</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>-1.0 to -0.5: Very Negative</span>
+                            <span class="badge bg-danger rounded-pill">😞</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>-0.5 to 0: Somewhat Negative</span>
+                            <span class="badge bg-warning rounded-pill">🙁</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>0: Neutral</span>
+                            <span class="badge bg-info rounded-pill">😐</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>0 to 0.5: Somewhat Positive</span>
+                            <span class="badge bg-primary rounded-pill">🙂</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>0.5 to 1.0: Very Positive</span>
+                            <span class="badge bg-success rounded-pill">😊</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('form') }}" class="btn btn-primary me-2">Take Fitness Survey</a>
+        <a href="{{ url_for('journal') }}" class="btn btn-outline-primary">Write Journal Entry</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if chart_data %}
+<script type="text/javascript">
+    window.CHART_DATA = {{ chart_data|tojson|safe }};
+</script>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{% if chart_data %}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('progressChart').getContext('2d');
+
+    var progressChart = new Chart(ctx, {
+        type: 'line',
+        data: window.CHART_DATA,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                'y-anxiety': {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Training Readiness'
+                    },
+                    min: 1,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            var labels = ['No Training', 'Rest Day', 'Light Training', 'Moderate Training', 'Go Hard'];
+                            return value + (labels[value - 1] ? ': ' + labels[value - 1] : '');
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                'y-mood': {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Journal Mood'
+                    },
+                    min: -1,
+                    max: 1,
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

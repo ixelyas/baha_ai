@@ -1,0 +1,342 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-5 ai-title">AI Fitness Coach (12 AI Algorithms)</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <!-- Algorithm Selection -->
+        <h4 class="section-title">Select Algorithms:</h4>
+        <div class="algo-buttons mb-4">
+            {% for algo in ["Linear Regression", "Logistic Regression", "Decision Tree", "Random Forest", "Naive Bayes",
+            "KNN", "SVM", "Gradient Boosting", "KMeans", "Apriori", "PCA", "YOLO (CV)"] %}
+            <label class="algo-option">
+                <input type="checkbox" name="selected_algos" value="{{ algo }}"> {{ algo }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons mb-5">
+            <button type="submit" name="action" value="analyze" class="btn btn-analyze">Analyze Selected</button>
+            <button type="submit" name="action" value="compare" class="btn btn-compare">Compare All Algorithms</button>
+        </div>
+
+        <!-- User Inputs -->
+        <h4 class="section-title">Enter Your Physical & Mental State (1-5)</h4>
+        {% for label, name in [("Sleep Quality", "sleep"), ("Stress Level", "stress"), ("Fatigue", "fatigue"),
+        ("Motivation", "motivation"), ("Nutrition Quality", "nutrition"), ("Soreness Level", "soreness"), ("Mood Level",
+        "mood")] %}
+        <div class="mb-4">
+            <label class="form-label">{{ label }}</label><br>
+            {% for i in range(1, 6) %}
+            <label class="form-check-label me-3">
+                <input type="radio" class="form-check-input" name="{{ name }}" value="{{ i }}" required> {{ i }}
+            </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <!-- Upload for YOLO -->
+        <div class="mb-4">
+            <label class="form-label">Upload Image for YOLO (optional)</label>
+            <input type="file" class="form-control" name="yolo_image">
+        </div>
+
+        <button type="submit" class="btn btn-final">Run Analysis</button>
+    </form>
+
+    {% if results %}
+    <hr>
+    <h2 class="mt-5 result-title">AI Results</h2>
+    <table class="table futuristic-table">
+        <thead>
+            <tr>
+                <th>Algorithm</th>
+                <th>Prediction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for algo, result in results.items() %}
+            <tr>
+                <td>{{ algo }}</td>
+                <td><span class="badge bg-info">{{ result }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Overall Chart -->
+    <h3 class="mt-5 result-title">Overall Comparison</h3>
+    <canvas id="resultsChart" data-labels='{{ chart_labels | tojson | safe }}'
+        data-data='{{ chart_data | tojson | safe }}' ></canvas>
+
+    <h3 class="mt-5 result-title">Summary</h3>
+    <div class="summary-box">{{ summary }}</div>
+
+    <h3 class="mt-5 result-title">Visualization per Algorithm</h3>
+    {% for algo in results.keys() %}
+    <h5>{{ algo }}</h5>
+    <canvas class="algoChart" data-algo="{{ algo }}" data-value="{{ algo_chart_data[algo] }}"  style="max-width: 700px; width: 100%; height: 400px; margin: 0 auto; display: block;"></canvas>
+    <hr>
+    {% endfor %}
+
+    <h3 class="mt-5 result-title">YOLO Detection</h3>
+    {% if uploaded_image %}
+        <img src="{{ uploaded_image }}" alt="YOLO Detection" class="img-fluid">
+        <p>Detected Objects:</p>
+        <ul>
+            {% for obj in results['YOLO (CV)']['detected_objects'] %}
+                <li>{{ obj }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No image uploaded or processed.</p>
+    {% endif %}
+    
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartCanvas = document.getElementById('resultsChart');
+        if (chartCanvas) {
+            const ctx = chartCanvas.getContext('2d');
+            const chartLabels = JSON.parse(chartCanvas.getAttribute('data-labels'));
+            const chartData = JSON.parse(chartCanvas.getAttribute('data-data'));
+
+            const readinessMapping = {
+                1: "No Training 🛌",
+                2: "Rest Day 🧘‍♂️",
+                3: "Light Training 🚶‍♂️",
+                4: "Moderate Training 🏋️‍♂️",
+                5: "Go Hard 🔥"
+            };
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Readiness Level',
+                        data: chartData,
+                        backgroundColor: chartData.map(value => {
+                            if (value >= 5) return 'rgba(0, 200, 83, 0.8)';          // Go Hard
+                            if (value >= 4) return 'rgba(102, 187, 106, 0.8)';       // Moderate
+                            if (value >= 3) return 'rgba(255, 213, 79, 0.8)';        // Light
+                            if (value >= 2) return 'rgba(255, 152, 0, 0.8)';         // Rest
+                            return 'rgba(244, 67, 54, 0.8)';                         // No Training
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const value = context.parsed.y;
+                                    return readinessMapping[value] || "No Data";
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Readiness Level'
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                callback: function (value) {
+                                    return readinessMapping[value] || value;
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'AI Algorithms'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Per Algorithm charts
+        document.querySelectorAll('.algoChart').forEach(canvas => {
+            const ctx = canvas.getContext('2d');
+            const algo = canvas.dataset.algo;
+            const value = parseInt(canvas.dataset.value);
+
+            let type = 'bar', data = {}, options = { responsive: true };
+
+            if (algo.includes("Linear Regression")) type = 'line', data = { labels: ["1", "2", "3", "4", "5"], datasets: [{ label: algo, data: [1, 2, value, 4, 5], borderColor: 'blue', fill: false }] };
+            else if (algo.includes("Logistic Regression")) type = 'doughnut', data = { labels: ["Rest", "Go"], datasets: [{ data: [5 - value, value], backgroundColor: ['gray', 'green'] }] };
+            else if (algo.includes("Decision Tree")) type = 'bar', data = { labels: ["Level"], datasets: [{ label: algo, data: [value], backgroundColor: 'purple' }] };
+            else if (algo.includes("Random Forest")) type = 'bar', data = { labels: ["Tree 1", "Tree 2"], datasets: [{ label: algo, data: [value, value + 1], backgroundColor: ['green', 'darkgreen'] }] };
+            else if (algo.includes("Naive Bayes")) type = 'pie', data = { labels: ["Low", "Medium", "High"], datasets: [{ data: [value, 5 - value, 1], backgroundColor: ['lightblue', 'yellow', 'red'] }] };
+            else if (algo.includes("KNN")) type = 'bubble', data = { datasets: [{ label: algo, data: [{ x: value, y: value, r: 10 }], backgroundColor: 'orange' }] };
+            else if (algo.includes("SVM")) type = 'polarArea', data = { labels: ["No", "Yes"], datasets: [{ data: [5 - value, value], backgroundColor: ['gray', 'green'] }] };
+            else if (algo.includes("Gradient Boosting")) type = 'bar', data = { labels: ["Boost"], datasets: [{ label: algo, data: [value], backgroundColor: 'orange' }] }, options.indexAxis = 'y';
+            else if (algo.includes("KMeans")) type = 'radar', data = { labels: ["Cluster 1", "Cluster 2", "Cluster 3"], datasets: [{ label: algo, data: [1, value, 3], backgroundColor: 'rgba(54,162,235,0.2)', borderColor: 'blue' }] };
+            else if (algo.includes("Apriori")) type = 'pie', data = { labels: ["Rule A", "Rule B", "Rule C"], datasets: [{ data: [value, 5 - value, 1], backgroundColor: ['cyan', 'pink', 'yellow'] }] };
+            else if (algo.includes("PCA")) type = 'line', data = { labels: ["PC1", "PC2", "PC3"], datasets: [{ label: algo, data: [1, value, 3], borderColor: 'red', fill: false }] };
+
+            new Chart(ctx, { type: type, data: data, options: options });
+        });
+    });
+</script>
+
+<style>
+    /* .container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    } */
+
+
+    h1.ai-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+h3.result-title {
+    font-size: 2rem;
+    color: #333;
+    margin-top: 50px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+h4.section-title {
+    font-size: 1.5rem;
+    color: #666;
+    margin: 30px 0 10px;
+}
+
+/* Алгоритмы выбора */
+.algo-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.algo-option {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #ccc;
+    padding: 12px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.algo-option:hover {
+    background: #dff9fb;
+    transform: translateY(-3px);
+}
+
+.algo-option input {
+    margin-right: 10px;
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-analyze, .btn-compare, .btn-final {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.btn-analyze:hover, .btn-compare:hover, .btn-final:hover {
+    background: linear-gradient(to right, #2575fc, #6a11cb);
+    transform: scale(1.05);
+    color: white;
+}
+
+/* Форма вопросов */
+.form-label {
+    font-weight: bold;
+    color: #444;
+}
+
+.form-check-label {
+    margin-right: 12px;
+    font-weight: normal;
+    color: #555;
+}
+
+/* Таблица результатов */
+.futuristic-table {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.futuristic-table th, .futuristic-table td {
+    padding: 15px;
+    text-align: left;
+}
+
+.futuristic-table th {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.futuristic-table td {
+    background-color: #ffffff;
+    color: #333;
+}
+
+.badge {
+    padding: 7px 14px;
+    border-radius: 20px;
+    background-color: #3498db;
+    color: white;
+    font-size: 0.85rem;
+}
+
+.summary-box {
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: white;
+    padding: 20px;
+    font-size: 1.3rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.img-fluid {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+</style>
+
+{% endblock %}

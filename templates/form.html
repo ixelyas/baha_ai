@@ -1,0 +1,271 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center my-5">
+                <h1 class="display-4 fw-bold mb-4">Daily Fitness Readiness Survey</h1>
+                <p class="lead mb-4">Complete the survey to assess your physical and mental state and get personalized fitness recommendations.</p>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('form') }}">
+
+                        <!-- Sleep -->
+                        <div class="mb-4">
+                            <label class="form-label">1. How was your sleep quality last night?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Very poor</span>
+                                <span class="text-muted">Excellent</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="sleep" id="sleep{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="sleep{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Stress -->
+                        <div class="mb-4">
+                            <label class="form-label">2. How stressed do you feel right now?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Very relaxed</span>
+                                <span class="text-muted">Extremely stressed</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="stress" id="stress{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="stress{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Fatigue -->
+                        <div class="mb-4">
+                            <label class="form-label">3. How much fatigue are you experiencing?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">No fatigue</span>
+                                <span class="text-muted">Completely exhausted</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="fatigue" id="fatigue{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="fatigue{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Motivation -->
+                        <div class="mb-4">
+                            <label class="form-label">4. How motivated are you to train today?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Not motivated</span>
+                                <span class="text-muted">Very motivated</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="motivation" id="motivation{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="motivation{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Nutrition -->
+                        <div class="mb-4">
+                            <label class="form-label">5. How would you rate your recent nutrition?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Unbalanced</span>
+                                <span class="text-muted">Optimal</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="nutrition" id="nutrition{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="nutrition{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Soreness -->
+                        <div class="mb-4">
+                            <label class="form-label">6. How sore are your muscles today?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">No soreness</span>
+                                <span class="text-muted">Extremely sore</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="soreness" id="soreness{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="soreness{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Mood -->
+                        <div class="mb-4">
+                            <label class="form-label">7. How would you describe your current mood?</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Very negative</span>
+                                <span class="text-muted">Very positive</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                {% for i in range(6) %}
+                                <div class="form-check mx-1">
+                                    <input class="form-check-input" type="radio" name="mood" id="mood{{ i }}" value="{{ i }}" required {% if i == 3 %}checked{% endif %}>
+                                    <label class="form-check-label" for="mood{{ i }}">{{ i }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info" role="alert">
+                <h5>Why this matters?</h5>
+                <p class="mb-0">Your answers help our AI coach determine today's best training intensity — from Rest Day to Go Hard. Be honest to get optimal fitness recommendations.</p>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    /* Basic Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.card {
+    border: 1px solid #e2e6ea;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.form-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.form-check-label {
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.form-check-input {
+    margin-right: 5px;
+}
+
+/* Survey Title */
+.display-4 {
+    color: #007bff;
+    font-size: 3.5rem;
+}
+
+/* Section Heading */
+h3 {
+    font-size: 1.75rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    color: #007bff;
+    border-color: #007bff;
+    font-weight: 500;
+}
+
+/* Form Controls */
+.input-group {
+    width: 100%;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.mb-4 {
+    margin-bottom: 20px;
+}
+
+.text-muted {
+    font-size: 0.9rem;
+}
+
+.form-check {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.alert-info {
+    background-color: #e9f7fc;
+    color: #0c5460;
+}
+
+.card-body .form-check-label {
+    font-size: 16px;
+}
+
+.card-body .form-check {
+    padding-left: 15px;
+}
+
+/* Hover Effects for Buttons */
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+</style>
+{% endblock %}
